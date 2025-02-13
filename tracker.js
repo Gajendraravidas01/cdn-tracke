@@ -1,8 +1,15 @@
 (function () {
   console.log("Session tracking script started...");
 
+  function getQueryParam(name) {
+    const params = new URLSearchParams(window.location.search);
+    return params.get(name) || "unknown_project";
+  }
+
+  const projectId = getQueryParam("project_id");
+
   const sessionData = {
-    projectId: 1, // Replace with the actual project ID
+    projectId: projectId, // Replace with the actual project ID
     ipAddress: "",
     device: getDeviceType(),
     browserUsed: getBrowserName(),
