@@ -1,4 +1,6 @@
 (function () {
+  console.log("Session tracking script started...");
+
   const sessionData = {
     projectId: 1, // Replace with the actual project ID
     ipAddress: "",
@@ -31,22 +33,27 @@
     return "Other";
   }
 
+  console.log("Device:", sessionData.device, "Browser:", sessionData.browserUsed);
+
   // Get user's location using ipapi
   fetch("https://ipapi.co/json/")
     .then((res) => res.json())
     .then((data) => {
       sessionData.ipAddress = data.ip;
       sessionData.location = `${data.city}, ${data.country}`;
+      console.log("IP Address:", sessionData.ipAddress, "Location:", sessionData.location);
     })
     .catch((err) => console.error("Error fetching location", err));
 
   // Track page views
   function trackAction(actionType, details = {}) {
-    sessionData.actions.push({
+    const action = {
       action: actionType,
       ...details,
       timestamp: new Date().toISOString(),
-    });
+    };
+    sessionData.actions.push(action);
+    console.log("Tracked action:", action);
   }
 
   trackAction("page_view", { page: window.location.pathname });
@@ -70,11 +77,22 @@
     sessionData.endTime = new Date().toISOString();
     sessionData.duration = Math.floor((new Date() - new Date(sessionData.startTime)) / 1000);
 
-    // Use fetch instead of sendBeacon for JSON Content-Type
-    fetch(BACKEND_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(sessionData),
-    }).catch((err) => console.error("Error sending data", err));
+    console.log("Session ended. Data to send:", sessionData);
+
+    try {
+      const response = await fetch(BACKEND_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(sessionData),
+      });
+
+      if (!response.ok) {
+        console.error("Server response not OK:", response.status, response.statusText);
+      } else {
+        console.log("Session data successfully sent!");
+      }
+    } catch (err) {
+      console.error("Error sending data", err);
+    }
   });
 })();
