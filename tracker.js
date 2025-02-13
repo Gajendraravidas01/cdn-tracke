@@ -1,6 +1,6 @@
 (function () {
     const sessionData = {
-      projectId: "your_project_id", // Replace with the actual project ID
+      projectId: 1, // Replace with the actual project ID
       ipAddress: "",
       device: getDeviceType(),
       browserUsed: getBrowserName(),
