@@ -2,8 +2,15 @@
   console.log("Session tracking script started...");
 
   function getQueryParam(name) {
-    const params = new URLSearchParams(window.location.search);
-    return params.get(name) || "unknown_project";
+    const scripts = document.getElementsByTagName("script");
+    for (let script of scripts) {
+      const src = script.src;
+      if (src.includes("tracker.js")) {
+        const params = new URLSearchParams(src.split("?")[1]);
+        return params.get(name) || "unknown_project";
+      }
+    }
+    return "unknown_project";
   }
 
   const projectId = getQueryParam("project_id");
@@ -22,6 +29,8 @@
 
   const BACKEND_URL = "http://localhost:8000/api/session/track-session"; // Change to your actual backend URL
 
+ 
+
   // Detect user's device type
   function getDeviceType() {
     const userAgent = navigator.userAgent;
@@ -29,7 +38,7 @@
     if (/Tablet|iPad/i.test(userAgent)) return "Tablet";
     return "Desktop";
   }
-
+  
   // Get browser name
   function getBrowserName() {
     const userAgent = navigator.userAgent;
