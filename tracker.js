@@ -14,6 +14,15 @@
   }
 
   const projectId = getQueryParam("project_id");
+  function getVisitorId() {
+      let visitorId = localStorage.getItem("visitor_id");
+      if (!visitorId) {
+          visitorId = crypto.randomUUID();
+          localStorage.setItem("visitor_id", visitorId);
+      }
+      return visitorId;
+  }
+  const visitorId = getVisitorId();
 
   const sessionData = {
     projectId: projectId, // Replace with the actual project ID
@@ -29,7 +38,8 @@
 
   const BACKEND_URL = "http://localhost:8000/api/session/track-session"; // Change to your actual backend URL
 
- 
+  const ANALYTICS_URL = "http://localhost:8000/api/analytics";
+
 
   // Detect user's device type
   function getDeviceType() {
@@ -96,6 +106,11 @@
     console.log("Session ended. Data to send:", sessionData);
 
     try {
+      await fetch(ANALYTICS_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ projectId, visitorId }),
+      });
       const response = await fetch(BACKEND_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
