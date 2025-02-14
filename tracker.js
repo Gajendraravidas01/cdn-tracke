@@ -14,15 +14,14 @@
   }
 
   const projectId = getQueryParam("project_id");
-  function getVisitorId() {
-      let visitorId = localStorage.getItem("visitor_id");
-      if (!visitorId) {
-          visitorId = crypto.randomUUID();
-          localStorage.setItem("visitor_id", visitorId);
-      }
-      return visitorId;
+  function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
   }
-  const visitorId = getVisitorId();
+  const visitorId = generateUUID();
 
   const sessionData = {
     projectId: projectId, // Replace with the actual project ID
