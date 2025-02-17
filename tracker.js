@@ -11,6 +11,16 @@
       }
     }
     return "unknown_project";
+  } 
+
+  // Check localStorage for visitor ID, if not found, generate and store it
+  function getOrCreateVisitorId() {
+    let storedVisitorId = localStorage.getItem("visitorId");
+    if (!storedVisitorId) {
+      storedVisitorId = generateUUID();
+      localStorage.setItem("visitorId", storedVisitorId);
+    }
+    return storedVisitorId;
   }
 
   const projectId = getQueryParam("project_id");
@@ -21,7 +31,7 @@
       return v.toString(16);
     });
   }
-  const visitorId = generateUUID();
+  const visitorId = getOrCreateVisitorId();;
 
   const sessionData = {
     projectId: projectId, // Replace with the actual project ID
