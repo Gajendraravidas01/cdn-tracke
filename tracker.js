@@ -49,6 +49,8 @@
 
   const ANALYTICS_URL = "http://localhost:8000/api/analytics";
 
+  const LEAD_API_URL = "http://localhost:8000/api/leads";
+
 
   // Detect user's device type
   function getDeviceType() {
@@ -102,10 +104,48 @@
   });
 
   // Track form submissions
-  document.addEventListener("submit", (event) => {
+  document.addEventListener("submit", async (event) => {
+    event.preventDefault(); // Prevent default form submission
+  
     const form = event.target;
+    const formData = new FormData(form);
+    const formObject = Object.fromEntries(formData.entries()); // Convert FormData to an object
+
+    console.log("Form submitted:", formObject);
+  
     trackAction("form_submit", { formId: form.id || "unknown_form" });
+  
+    try {
+      const response = await fetch(LEAD_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          projectId: projectId,
+          userId: null, // Update if user authentication is added
+          ipAddress: sessionData.ipAddress, // From session tracking
+          location: sessionData.location, // From session tracking
+          device: sessionData.device, // Device type
+          browserUsed: sessionData.browserUsed, // Browser type
+          name: formObject.name || "Unknown", // Ensure required field
+          phoneNo: formObject.mobile || null,
+          description: formObject.description || null,
+          email: formObject.email || null,
+          timestamp: new Date().toISOString(), // Auto-generated
+        }),
+      });
+  
+      if (!response.ok) {
+        console.error("Error sending lead data:", response.status, response.statusText);
+      } else {
+        console.log("Lead data successfully sent!");
+      }
+    } catch (err) {
+      console.error("Error sending lead data:", err);
+    }
+  
+    form.submit(); // Allow form submission after tracking
   });
+  
 
   // Send session data when user leaves
   window.addEventListener("beforeunload", async () => {
